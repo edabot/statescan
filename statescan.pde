@@ -2,33 +2,44 @@
 PImage img;  // Declare variable "a" of type PImage
 float noiseScale = .02;
 int maxValue= 16777216;
-int step = 10;
+int hStep = 7;
+int vStep = 15;
 float yVal = 0;
-float yStep = .03;
+float yStep = .01;
+float zVal = 0;
+float zStep = 0.01;
 int margin = 20;
+float amplitude = 7;
 
 void setup() {
   size(640, 620);
   // The image file must be in the data folder of the current sketch 
   // to load successfully
   img = loadImage("california.png");  // Load the image into the program  
-  img.filter(BLUR, 3);
+  img.filter(BLUR, 5);
   background(255);
    img.loadPixels();
 }
 
 void draw() {
   yVal += yStep;
-    background(255);
+  zVal += zStep;
+  background(0);
+  stroke(255);
+  fill(0);
+  smooth();  
+  strokeWeight(3);
 
-  // Displays the image at its actual size at point (0,0)
-   for (int y = 0; y < img.height - 10; y +=step){
-    for (int x=0; x < img.width - 10; x += step) {
-      float pixelValue = -6 * img.pixels[y*img.width+x] / maxValue + 1;
-      float nextPixelValue = -6 * img.pixels[y*img.width+x+step] / maxValue + 1;
-      float noiseVal = noise(x*noiseScale, y*noiseScale + yVal) * pixelValue;
-      float nextNoiseVal = noise((x+ step)*noiseScale, y*noiseScale + yVal) * nextPixelValue;
-    line(x + margin, y - noiseVal * 10 + margin, x + 10 + margin, y - nextNoiseVal * 10+ margin);
+   for (int y = 0; y < img.height - hStep; y +=hStep){
+    beginShape();
+    for (int x=0; x < img.width - vStep; x += vStep) {
+      float pixelValue = -amplitude * img.pixels[y*img.width+x] / maxValue + 1;
+      float noiseVal = noise(x*noiseScale, y*noiseScale + yVal, zVal) * pixelValue;
+      curveVertex(x + margin, y - noiseVal * 10 + margin); 
+      if (x == 0 || img.width - x < vStep) {
+        curveVertex(x + margin, y - noiseVal * 10 + margin); 
+      }
     }
-  }   // Displays the image at point (0, height/2) at half of its size
+    endShape();
+  }   
 }
